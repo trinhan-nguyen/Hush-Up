@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">HushUp</string>
+    <string name="add_new_location">Add new location</string>
+    <string name="location_list">Locations</string>
+    <string name="setting_enabled" translatable="false">EnabledSetting</string>
+    <string name="settings_label">Settings</string>
+    <string name="enable_geofences">Enable Geofences</string>
+    <string name="need_location_permission_message">You need to enable lcoation permission first</string>
+    <string name="location_permissions_granted_message">Location permission granted</string>
+    <string name="location_permissions">Location Permissions</string>
+</resources>
