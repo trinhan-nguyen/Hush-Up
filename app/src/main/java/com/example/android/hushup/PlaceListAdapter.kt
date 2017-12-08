@@ -6,11 +6,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import com.google.android.gms.location.places.PlaceBuffer
 
 /**
  * Created by ngtrnhan1205 on 12/7/17.
  */
-class PlaceListAdapter(private val mContext: Context) : RecyclerView.Adapter<PlaceListAdapter.PlaceViewHolder>() {
+class PlaceListAdapter(private val mContext: Context, private var mPlaces: PlaceBuffer?) :
+        RecyclerView.Adapter<PlaceListAdapter.PlaceViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PlaceViewHolder {
         // Get the RecyclerView item layout
@@ -20,12 +22,22 @@ class PlaceListAdapter(private val mContext: Context) : RecyclerView.Adapter<Pla
     }
 
     override fun onBindViewHolder(holder: PlaceViewHolder, position: Int) {
-
+        val placeName = mPlaces!!.get(position).name.toString()
+        val placeAddress = mPlaces!!.get(position).address.toString()
+        holder.nameTextView.setText(placeName)
+        holder.addressTextView.setText(placeAddress)
     }
 
+    fun swapPlaces(newPlaces: PlaceBuffer) {
+        mPlaces = newPlaces
+        if (mPlaces != null) {
+            this.notifyDataSetChanged()
+        }
+    }
 
     override fun getItemCount(): Int {
-        return 0
+        if (mPlaces == null) return 0
+        return mPlaces!!.count
     }
 
     inner class PlaceViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {

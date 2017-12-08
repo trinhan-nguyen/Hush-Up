@@ -21,6 +21,10 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.places.Places
 import android.widget.CheckBox
 import com.example.android.hushup.provider.PlaceContract
+import com.google.android.gms.common.api.PendingResult
+import com.google.android.gms.common.api.ResultCallback
+import com.google.android.gms.location.places.Place
+import com.google.android.gms.location.places.PlaceBuffer
 import com.google.android.gms.location.places.ui.PlacePicker
 
 
@@ -35,8 +39,9 @@ class MainActivity : AppCompatActivity(),
     }
 
     // Member variables
-    private lateinit var mAdapter: PlaceListAdapter;
-    private lateinit var mRecyclerView: RecyclerView;
+    private lateinit var mAdapter: PlaceListAdapter
+    private lateinit var mRecyclerView: RecyclerView
+    private lateinit var mClient: GoogleApiClient
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -46,10 +51,10 @@ class MainActivity : AppCompatActivity(),
         // Set up the recycler view
         mRecyclerView = findViewById<RecyclerView>(R.id.places_list_recycler_view)
         mRecyclerView!!.layoutManager = LinearLayoutManager(this)
-        mAdapter = PlaceListAdapter(this)
+        mAdapter = PlaceListAdapter(this, null)
         mRecyclerView!!.adapter = mAdapter
 
-        var client = GoogleApiClient.Builder(this)
+        mClient = GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .addApi(LocationServices.API)
@@ -60,6 +65,7 @@ class MainActivity : AppCompatActivity(),
 
     override fun onConnected(bundle: Bundle?) {
         Log.i(TAG, "successfully connected!")
+        refreshData()
     }
 
     override fun onConnectionSuspended(i: Int) {
@@ -68,6 +74,24 @@ class MainActivity : AppCompatActivity(),
 
     override fun onConnectionFailed(connectionResult: ConnectionResult) {
         Log.i(TAG, "Failed!")
+    }
+
+    fun refreshData() {
+        val uri = PlaceContract.PlaceEntry.CONTENT_URI
+        val data = contentResolver.query(
+                uri, null,null, null, null)
+        if (data == null || data.count == 0) return
+        val placesId = ArrayList<String>()
+        while (data.moveToNext()) {
+            placesId.add(data.getString(data.getColumnIndex(PlaceContract.PlaceEntry.COLUMN_PLACE_ID)))
+        }
+        val placeResult: PendingResult<PlaceBuffer> = Places.GeoDataApi.
+                getPlaceById(mClient, *placesId.toTypedArray())
+
+        // Using lambda to omit the interface and the override method onResult
+        placeResult.setResultCallback {
+            places -> mAdapter.swapPlaces(places)
+        }
     }
 
     fun addNewLocation(view: View) {
@@ -84,13 +108,7 @@ class MainActivity : AppCompatActivity(),
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        Log.i("hoho", requestCode.toString())
-        Log.i("haha", resultCode.toString())
-
-        Log.i("hoho", PLACE_PICKER_REQUEST.toString())
-        Log.i("haha", Activity.RESULT_OK.toString())
         if (requestCode == PLACE_PICKER_REQUEST && resultCode == Activity.RESULT_OK) {
-            Log.i("weird", "isintasdf")
             val place = PlacePicker.getPlace(this, data)
             if (place == null) {
                 Log.i(TAG,"No place selected!")
@@ -106,6 +124,8 @@ class MainActivity : AppCompatActivity(),
             val contentValues = ContentValues()
             contentValues.put(PlaceContract.PlaceEntry.COLUMN_PLACE_ID, placeId)
             contentResolver.insert(PlaceContract.PlaceEntry.CONTENT_URI, contentValues)
+
+            refreshData()
         }
     }
 
