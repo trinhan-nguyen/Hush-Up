@@ -2,6 +2,7 @@ package com.example.android.hushup
 
 import android.app.Activity
 import android.app.LoaderManager
+import android.content.ContentValues
 import android.content.Intent
 import android.content.Loader
 import android.content.pm.PackageManager
@@ -19,6 +20,7 @@ import com.google.android.gms.common.api.GoogleApiClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.places.Places
 import android.widget.CheckBox
+import com.example.android.hushup.provider.PlaceContract
 import com.google.android.gms.location.places.ui.PlacePicker
 
 
@@ -82,13 +84,28 @@ class MainActivity : AppCompatActivity(),
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
+        Log.i("hoho", requestCode.toString())
+        Log.i("haha", resultCode.toString())
+
+        Log.i("hoho", PLACE_PICKER_REQUEST.toString())
+        Log.i("haha", Activity.RESULT_OK.toString())
         if (requestCode == PLACE_PICKER_REQUEST && resultCode == Activity.RESULT_OK) {
+            Log.i("weird", "isintasdf")
             val place = PlacePicker.getPlace(this, data)
             if (place == null) {
                 Log.i(TAG,"No place selected!")
                 return;
             }
+
+            // Extract the place's information
+            val name = place.name.toString()
+            val placeAddress = place.address.toString()
+            val placeId = place.id
+
+            // Insert the new place into database
+            val contentValues = ContentValues()
+            contentValues.put(PlaceContract.PlaceEntry.COLUMN_PLACE_ID, placeId)
+            contentResolver.insert(PlaceContract.PlaceEntry.CONTENT_URI, contentValues)
         }
     }
 
