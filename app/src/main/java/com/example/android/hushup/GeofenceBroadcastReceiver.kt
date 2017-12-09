@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.util.Log
+import com.google.android.gms.location.GeofencingEvent
 
 /**
  * Created by ngtrnhan1205 on 12/8/17.
@@ -14,5 +15,6 @@ class GeofenceBroadcastReceiver: BroadcastReceiver() {
     }
     override fun onReceive(context: Context?, intent: Intent?) {
         Log.i(TAG, "onReceive called")
+        val geoFencingEvent = GeofencingEvent.fromIntent(intent)
     }
 }

@@ -1,6 +1,7 @@
 package com.example.android.hushup
 
 import android.app.Activity
+import android.app.NotificationManager
 import android.content.*
 import android.content.pm.PackageManager
 import android.support.v7.app.AppCompatActivity
@@ -54,7 +55,7 @@ class MainActivity : AppCompatActivity(),
                 .getBoolean(getString(R.string.setting_enabled), false)
         val onOffSwitch = findViewById<Switch>(R.id.enable_switch);
 
-        onOffSwitch.setChecked(mIsEnabled);
+        onOffSwitch.isChecked = mIsEnabled;
 
         onOffSwitch.setOnCheckedChangeListener({
             _, isChecked ->  run {
@@ -163,11 +164,28 @@ class MainActivity : AppCompatActivity(),
             locationPermissions.isChecked = true
             locationPermissions.isEnabled = false
         }
+
+        // Initialize ringer permissions checkbox
+        val ringerPermissions = findViewById<CheckBox>(R.id.ringer_permission_checkbox)
+        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        // Check for API supports such permissions and is granted
+        if (android.os.Build.VERSION.SDK_INT >= 24
+                && !notificationManager.isNotificationPolicyAccessGranted()) {
+            ringerPermissions.isChecked = false
+        } else {
+            ringerPermissions.isChecked = true
+            ringerPermissions.isEnabled = false
+        }
     }
 
     fun locationPermissionClicked(view: View) {
         ActivityCompat.requestPermissions(this,
                 arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION),
                 PERMISSION_REQUEST_FINE_LOCATION)
+    }
+
+    fun ringerPermissionClicked(view: View) {
+        val intent = Intent(android.provider.Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS)
+        startActivity(intent)
     }
 }
