@@ -170,7 +170,7 @@ class MainActivity : AppCompatActivity(),
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         // Check for API supports such permissions and is granted
         if (android.os.Build.VERSION.SDK_INT >= 24
-                && !notificationManager.isNotificationPolicyAccessGranted()) {
+                && !notificationManager.isNotificationPolicyAccessGranted) {
             ringerPermissions.isChecked = false
         } else {
             ringerPermissions.isChecked = true
