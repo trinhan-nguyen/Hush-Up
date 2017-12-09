@@ -1,12 +1,8 @@
 package com.example.android.hushup
 
 import android.app.Activity
-import android.app.LoaderManager
-import android.content.ContentValues
-import android.content.Intent
-import android.content.Loader
+import android.content.*
 import android.content.pm.PackageManager
-import android.database.Cursor
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.v4.app.ActivityCompat
@@ -20,10 +16,9 @@ import com.google.android.gms.common.api.GoogleApiClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.places.Places
 import android.widget.CheckBox
+import android.widget.Switch
 import com.example.android.hushup.provider.PlaceContract
 import com.google.android.gms.common.api.PendingResult
-import com.google.android.gms.common.api.ResultCallback
-import com.google.android.gms.location.places.Place
 import com.google.android.gms.location.places.PlaceBuffer
 import com.google.android.gms.location.places.ui.PlacePicker
 
@@ -32,16 +27,16 @@ class MainActivity : AppCompatActivity(),
         GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
     companion object {
-        // Constants
         val TAG: String = MainActivity::class.java.simpleName
         val PERMISSION_REQUEST_FINE_LOCATION = 111
         val PLACE_PICKER_REQUEST = 999
     }
 
-    // Member variables
     private lateinit var mAdapter: PlaceListAdapter
     private lateinit var mRecyclerView: RecyclerView
     private lateinit var mClient: GoogleApiClient
+    private lateinit var mGeofencing: Geofencing
+    private var mIsEnabled: Boolean = false
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -54,6 +49,25 @@ class MainActivity : AppCompatActivity(),
         mAdapter = PlaceListAdapter(this, null)
         mRecyclerView!!.adapter = mAdapter
 
+        // Initialize the switch state and Handle enable/disable switch change
+        mIsEnabled = getPreferences(MODE_PRIVATE)
+                .getBoolean(getString(R.string.setting_enabled), false)
+        val onOffSwitch = findViewById<Switch>(R.id.enable_switch);
+
+        onOffSwitch.setChecked(mIsEnabled);
+
+        onOffSwitch.setOnCheckedChangeListener({
+            _, isChecked ->  run {
+                val editor = getPreferences(Context.MODE_PRIVATE).edit()
+                editor.putBoolean(getString(R.string.setting_enabled), isChecked)
+                mIsEnabled = isChecked
+                editor.commit()
+                if (isChecked) mGeofencing.registerAllGeofences()
+                else mGeofencing.unRegisterAllGeofences()
+            }
+        })
+
+        // Build Api Client
         mClient = GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
@@ -61,7 +75,11 @@ class MainActivity : AppCompatActivity(),
                 .addApi(Places.GEO_DATA_API)
                 .enableAutoManage(this, this)
                 .build()
+
+        mGeofencing = Geofencing(this, mClient)
     }
+
+
 
     override fun onConnected(bundle: Bundle?) {
         Log.i(TAG, "successfully connected!")
@@ -76,7 +94,7 @@ class MainActivity : AppCompatActivity(),
         Log.i(TAG, "Failed!")
     }
 
-    fun refreshData() {
+    private fun refreshData() {
         val uri = PlaceContract.PlaceEntry.CONTENT_URI
         val data = contentResolver.query(
                 uri, null,null, null, null)
@@ -90,7 +108,11 @@ class MainActivity : AppCompatActivity(),
 
         // Using lambda to omit the interface and the override method onResult
         placeResult.setResultCallback {
-            places -> mAdapter.swapPlaces(places)
+            places -> run {
+                mAdapter.swapPlaces(places)
+                mGeofencing.updateGeofencesList(places)
+                if (mIsEnabled) mGeofencing.registerAllGeofences()
+            }
         }
     }
 

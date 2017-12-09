@@ -27,6 +27,7 @@
             android:name="com.example.android.hushup.provider.PlaceContentProvider"
             android:authorities="com.example.android.hushup"
             android:exported="false"/>
+        <receiver android:name=".GeofenceBroadcastReceiver"/>
 
     </application>
 
