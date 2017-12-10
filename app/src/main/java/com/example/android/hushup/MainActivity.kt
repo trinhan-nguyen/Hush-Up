@@ -22,6 +22,9 @@ import com.example.android.hushup.provider.PlaceContract
 import com.google.android.gms.common.api.PendingResult
 import com.google.android.gms.location.places.PlaceBuffer
 import com.google.android.gms.location.places.ui.PlacePicker
+import android.support.v7.widget.helper.ItemTouchHelper
+
+
 
 
 class MainActivity : AppCompatActivity(),
@@ -46,9 +49,22 @@ class MainActivity : AppCompatActivity(),
 
         // Set up the recycler view
         mRecyclerView = findViewById<RecyclerView>(R.id.places_list_recycler_view)
-        mRecyclerView!!.layoutManager = LinearLayoutManager(this)
+        mRecyclerView.layoutManager = LinearLayoutManager(this)
         mAdapter = PlaceListAdapter(this, null)
-        mRecyclerView!!.adapter = mAdapter
+        mRecyclerView.adapter = mAdapter
+
+        // Swipe to delete
+        ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
+
+            override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean { return false }
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, swipeDir: Int) {
+                val id = viewHolder.itemView.tag.toString()
+                val uri = PlaceContract.PlaceEntry.CONTENT_URI.buildUpon().appendPath(id).build()
+                contentResolver.delete(uri, null, null)
+                refreshData()
+            }
+        }).attachToRecyclerView(mRecyclerView)
 
         // Initialize the switch state and Handle enable/disable switch change
         mIsEnabled = getPreferences(MODE_PRIVATE)
@@ -79,8 +95,6 @@ class MainActivity : AppCompatActivity(),
 
         mGeofencing = Geofencing(this, mClient)
     }
-
-
 
     override fun onConnected(bundle: Bundle?) {
         Log.i(TAG, "successfully connected!")
@@ -137,10 +151,6 @@ class MainActivity : AppCompatActivity(),
                 Log.i(TAG,"No place selected!")
                 return;
             }
-
-            // Extract the place's information
-            val name = place.name.toString()
-            val placeAddress = place.address.toString()
             val placeId = place.id
 
             // Insert the new place into database

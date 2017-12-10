@@ -26,9 +26,9 @@ class PlaceContract {
     open class PlaceEntry: BaseColumns {
         companion object: IdBaseColumns() {
             // TaskEntry content URI = base content URI + path
-            val CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_PLACES).build();
-            val TABLE_NAME = "places";
-            val COLUMN_PLACE_ID = "placeID";
+            val CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_PLACES).build() as Uri
+            val TABLE_NAME = "places"
+            val COLUMN_PLACE_ID = "placeID"
         }
     }
 }

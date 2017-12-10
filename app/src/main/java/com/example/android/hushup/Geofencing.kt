@@ -25,16 +25,12 @@ class Geofencing(private val mContext: Context, private val mClient: GoogleApiCl
     }
     private var mGeofencePendingIntent: PendingIntent? = null
     private lateinit var mGeofenceList: ArrayList<Geofence>
-    private lateinit var mGeofencingClient: GeofencingClient
+    private var mGeofencingClient = LocationServices.getGeofencingClient(mContext)
 
     fun registerAllGeofences() {
         // Check that the API client is connected and that the list has Geofences in it
-        if (mClient == null || !mClient.isConnected() ||
-                mGeofenceList == null || mGeofenceList.size === 0) {
-            return
-        }
+        if (!mClient.isConnected || mGeofenceList.size == 0) { return }
         try {
-            mGeofencingClient = LocationServices.getGeofencingClient(mContext)
             mGeofencingClient.addGeofences(getGeofencingRequest(), getGeofencePendingIntent())
                     .addOnCompleteListener { Log.i(TAG, "Geofencing added") }
         } catch (securityException: SecurityException) {
@@ -45,10 +41,10 @@ class Geofencing(private val mContext: Context, private val mClient: GoogleApiCl
     }
 
     fun unRegisterAllGeofences() {
-        if (mClient == null || !mClient.isConnected()) return
+        if (!mClient.isConnected) return
         try {
             mGeofencingClient.removeGeofences(getGeofencePendingIntent())
-                    .addOnCompleteListener { Log.i(TAG, "geofencing added") }
+                    .addOnCompleteListener { Log.i(TAG, "Geofencing removed") }
         } catch (securityException: SecurityException) {
             // Catch exception generated if the app does not use ACCESS_FINE_LOCATION permission.
             Log.e(TAG, securityException.message)
@@ -84,12 +80,10 @@ class Geofencing(private val mContext: Context, private val mClient: GoogleApiCl
 
     private fun getGeofencePendingIntent(): PendingIntent? {
         // Reuse the PendingIntent if we already have it.
-        if (mGeofencePendingIntent != null) {
-            return mGeofencePendingIntent
-        }
+        if (mGeofencePendingIntent != null) { return mGeofencePendingIntent }
         val intent = Intent(mContext, GeofenceBroadcastReceiver::class.java)
-        mGeofencePendingIntent = PendingIntent.
-                getBroadcast(mContext, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+        mGeofencePendingIntent = PendingIntent
+                .getBroadcast(mContext, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
         return mGeofencePendingIntent
     }
 }

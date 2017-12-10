@@ -3,6 +3,8 @@ package com.example.android.hushup.provider
 import android.content.*
 import android.database.Cursor
 import android.net.Uri
+import android.util.Log
+import com.google.android.gms.location.places.Place
 
 /**
  * Created by ngtrnhan1205 on 12/7/17.
@@ -22,8 +24,8 @@ open class PlaceContentProvider(): ContentProvider() {
         // Initialize a UriMatcher
         val uriMatcher = UriMatcher(UriMatcher.NO_MATCH);
         // Add URI matches
-        uriMatcher.addURI(PlaceContract.AUTHORITY, PlaceContract.PATH_PLACES, PLACES);
-        uriMatcher.addURI(PlaceContract.AUTHORITY, PlaceContract.PATH_PLACES + "/#", PLACE_WITH_ID);
+        uriMatcher.addURI(PlaceContract.AUTHORITY, PlaceContract.PATH_PLACES, PLACES)
+        uriMatcher.addURI(PlaceContract.AUTHORITY, PlaceContract.PATH_PLACES + "/*", PLACE_WITH_ID)
         return uriMatcher
     }
 
@@ -117,14 +119,14 @@ open class PlaceContentProvider(): ContentProvider() {
         val db = mPlaceDbHelper.writableDatabase
         val match = sUriMatcher.match(uri)
         // Keep track of the number of deleted places
-        val placesDeleted: Int // starts as 0
+        var placesDeleted: Int // starts as 0
         when (match) {
         // Handle the single item case, recognized by the ID included in the URI path
             PLACE_WITH_ID -> {
                 // Get the place ID from the URI path
                 val id = uri.pathSegments[1];
-                // Use selections/selectionArgs to filter for this ID
-                placesDeleted = db.delete(PlaceContract.PlaceEntry.TABLE_NAME, "_id=?", arrayOf(id))
+                // Use selections/selectionArgs to filter for this placeID
+                placesDeleted = db.delete(PlaceContract.PlaceEntry.TABLE_NAME, "placeID=?", arrayOf(id))
             }
             else -> throw UnsupportedOperationException("Unknown uri: " + uri)
         }

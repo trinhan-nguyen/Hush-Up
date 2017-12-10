@@ -24,8 +24,10 @@ class PlaceListAdapter(private val mContext: Context, private var mPlaces: Place
     override fun onBindViewHolder(holder: PlaceViewHolder, position: Int) {
         val placeName = mPlaces!!.get(position).name.toString()
         val placeAddress = mPlaces!!.get(position).address.toString()
-        holder.nameTextView.setText(placeName)
-        holder.addressTextView.setText(placeAddress)
+        val id = mPlaces!!.get(position).id.toString()
+        holder.nameTextView.text = placeName
+        holder.addressTextView.text = placeAddress
+        holder.itemView.tag = id
     }
 
     fun swapPlaces(newPlaces: PlaceBuffer) {

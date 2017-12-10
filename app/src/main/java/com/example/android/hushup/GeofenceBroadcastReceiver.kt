@@ -23,7 +23,7 @@ class GeofenceBroadcastReceiver: BroadcastReceiver() {
         val channelId = "hushupnoti"
     }
     override fun onReceive(context: Context?, intent: Intent?) {
-        // Catch intent from transition
+        // Catch intent from transition (Pending result)
         val geofencingEvent = GeofencingEvent.fromIntent(intent) as GeofencingEvent
         if (geofencingEvent.hasError()) {
             Log.e(TAG, String.format("Error code : %d", geofencingEvent.getErrorCode()))
@@ -32,7 +32,7 @@ class GeofenceBroadcastReceiver: BroadcastReceiver() {
 
         // Get the transition type.
         val geofenceTransition = geofencingEvent.getGeofenceTransition()
-        // Check which transition type has triggered this event
+
         if (geofenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER) {
             setRingerMode(context!!, AudioManager.RINGER_MODE_SILENT)
         } else if (geofenceTransition == Geofence.GEOFENCE_TRANSITION_EXIT) {
