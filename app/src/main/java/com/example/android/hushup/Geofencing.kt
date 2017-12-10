@@ -10,8 +10,6 @@ import com.google.android.gms.location.places.PlaceBuffer
 import com.google.android.gms.location.GeofencingRequest
 import android.content.Intent
 import android.util.Log
-import com.google.android.gms.common.api.ResultCallback
-import com.google.android.gms.location.GeofencingClient
 import com.google.android.gms.location.LocationServices
 
 /**
@@ -20,7 +18,7 @@ import com.google.android.gms.location.LocationServices
 class Geofencing(private val mContext: Context, private val mClient: GoogleApiClient) {
     companion object {
         val TAG: String = Geofencing::class.java.simpleName
-        val GEOFENCE_RADIUS: Float = 30F // 30 meters
+        val GEOFENCE_RADIUS: Float = 100F // 30 meters
         val GEOFENCE_TIMEOUT: Long = 24 * 60 * 60 * 1000 //24 hours
     }
     private var mGeofencePendingIntent: PendingIntent? = null
@@ -29,7 +27,7 @@ class Geofencing(private val mContext: Context, private val mClient: GoogleApiCl
 
     fun registerAllGeofences() {
         // Check that the API client is connected and that the list has Geofences in it
-        if (!mClient.isConnected || mGeofenceList.size == 0) { return }
+        if (!mClient.isConnected || mGeofenceList.size == 0) return
         try {
             mGeofencingClient.addGeofences(getGeofencingRequest(), getGeofencePendingIntent())
                     .addOnCompleteListener { Log.i(TAG, "Geofencing added") }

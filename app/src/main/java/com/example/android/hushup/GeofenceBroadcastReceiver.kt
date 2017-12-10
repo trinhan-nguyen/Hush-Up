@@ -33,13 +33,13 @@ class GeofenceBroadcastReceiver: BroadcastReceiver() {
         // Get the transition type.
         val geofenceTransition = geofencingEvent.getGeofenceTransition()
 
-        if (geofenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER) {
-            setRingerMode(context!!, AudioManager.RINGER_MODE_SILENT)
-        } else if (geofenceTransition == Geofence.GEOFENCE_TRANSITION_EXIT) {
-            setRingerMode(context!!, AudioManager.RINGER_MODE_NORMAL)
-        } else {
-            Log.e(TAG, String.format("Unknown transition : %d", geofenceTransition))
-            return
+        when (geofenceTransition) {
+            Geofence.GEOFENCE_TRANSITION_ENTER -> setRingerMode(context!!, AudioManager.RINGER_MODE_SILENT)
+            Geofence.GEOFENCE_TRANSITION_EXIT -> setRingerMode(context!!, AudioManager.RINGER_MODE_NORMAL)
+            else -> {
+                Log.e(TAG, String.format("Unknown transition : %d", geofenceTransition))
+                return
+            }
         }
         // Send the notification
         sendNotification(context, geofenceTransition)
@@ -89,7 +89,7 @@ class GeofenceBroadcastReceiver: BroadcastReceiver() {
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         // Check for DND permissions for API 24+
         if (android.os.Build.VERSION.SDK_INT < 24
-                || (android.os.Build.VERSION.SDK_INT >= 24 && !notificationManager.isNotificationPolicyAccessGranted)) {
+                || (android.os.Build.VERSION.SDK_INT >= 24 && notificationManager.isNotificationPolicyAccessGranted)) {
             val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
             audioManager.ringerMode = mode
         }
