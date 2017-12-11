@@ -18,11 +18,11 @@ import com.google.android.gms.location.LocationServices
 class Geofencing(private val mContext: Context, private val mClient: GoogleApiClient) {
     companion object {
         val TAG: String = Geofencing::class.java.simpleName
-        val GEOFENCE_RADIUS: Float = 100F // 30 meters
+        val GEOFENCE_RADIUS: Float = 100F // 100 meters
         val GEOFENCE_TIMEOUT: Long = 24 * 60 * 60 * 1000 //24 hours
     }
     private var mGeofencePendingIntent: PendingIntent? = null
-    private lateinit var mGeofenceList: ArrayList<Geofence>
+    private var mGeofenceList: ArrayList<Geofence> = ArrayList<Geofence>()
     private var mGeofencingClient = LocationServices.getGeofencingClient(mContext)
 
     fun registerAllGeofences() {
@@ -35,7 +35,6 @@ class Geofencing(private val mContext: Context, private val mClient: GoogleApiCl
             // Catch exception generated if the app does not use ACCESS_FINE_LOCATION permission.
             Log.e(TAG, securityException.message)
         }
-
     }
 
     fun unRegisterAllGeofences() {
@@ -68,6 +67,8 @@ class Geofencing(private val mContext: Context, private val mClient: GoogleApiCl
             mGeofenceList.add(geofence)
         }
     }
+
+    fun emptyGeofenceList() { mGeofenceList = ArrayList<Geofence>() }
 
     private fun getGeofencingRequest(): GeofencingRequest {
         val builder = GeofencingRequest.Builder()

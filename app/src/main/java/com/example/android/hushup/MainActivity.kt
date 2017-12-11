@@ -4,6 +4,7 @@ import android.app.Activity
 import android.app.NotificationManager
 import android.content.*
 import android.content.pm.PackageManager
+import android.media.AudioManager
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.v4.app.ActivityCompat
@@ -80,7 +81,12 @@ class MainActivity : AppCompatActivity(),
                 mIsEnabled = isChecked
                 editor.commit()
                 if (isChecked) mGeofencing.registerAllGeofences()
-                else mGeofencing.unRegisterAllGeofences()
+                else {
+                    mGeofencing.unRegisterAllGeofences()
+                    // transitionType == 0 is special in this case
+                    GeofenceBroadcastReceiver.sendNotification(this, 0)
+                    GeofenceBroadcastReceiver.setRingerMode(this, AudioManager.RINGER_MODE_NORMAL)
+                }
             }
         })
 
@@ -113,7 +119,10 @@ class MainActivity : AppCompatActivity(),
         val uri = PlaceContract.PlaceEntry.CONTENT_URI
         val data = contentResolver.query(
                 uri, null,null, null, null)
-        if (data == null || data.count == 0) return
+        if (data == null || data.count == 0) {
+            mGeofencing.emptyGeofenceList()
+            return
+        }
         val placesId = ArrayList<String>()
         while (data.moveToNext()) {
             placesId.add(data.getString(data.getColumnIndex(PlaceContract.PlaceEntry.COLUMN_PLACE_ID)))
