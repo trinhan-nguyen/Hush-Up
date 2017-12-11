@@ -24,6 +24,8 @@
             </intent-filter>
         </activity>
 
+        <activity android:name="com.example.android.hushup.SettingsActivity"></activity>
+
         <provider
             android:name="com.example.android.hushup.provider.PlaceContentProvider"
             android:authorities="com.example.android.hushup"
