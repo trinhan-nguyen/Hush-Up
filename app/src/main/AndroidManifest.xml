@@ -32,6 +32,9 @@
             android:exported="false"/>
         <receiver android:name=".GeofenceBroadcastReceiver"/>
 
+        <service android:name=".MyJobService"
+            android:permission="android.permission.BIND_JOB_SERVICE"/>
+
     </application>
 
 </manifest>

@@ -1,6 +1,8 @@
 package com.example.android.hushup
 
 import android.app.Activity
+import android.app.job.JobInfo
+import android.app.job.JobScheduler
 import android.content.*
 import android.content.pm.PackageManager
 import android.media.AudioManager
@@ -16,7 +18,6 @@ import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.api.GoogleApiClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.places.Places
-import android.widget.CheckBox
 import android.widget.Switch
 import com.example.android.hushup.provider.PlaceContract
 import com.google.android.gms.common.api.PendingResult
@@ -39,6 +40,7 @@ class MainActivity : AppCompatActivity(),
     private lateinit var mRecyclerView: RecyclerView
     private lateinit var mClient: GoogleApiClient
     private lateinit var mGeofencing: Geofencing
+    private lateinit var mServiceComponent: ComponentName
     private var mIsEnabled: Boolean = false
 
 
@@ -65,8 +67,17 @@ class MainActivity : AppCompatActivity(),
             }
         }).attachToRecyclerView(mRecyclerView)
 
+        // Initialize JobScheduler
+        mServiceComponent = ComponentName(this, MyJobService::class.java)
+        val scheduler: JobScheduler = getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
+        val jobInfo = JobInfo.Builder(0, mServiceComponent)
+                .setOverrideDeadline(12 * 60 * 60 * 1000) //12 hours
+                .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
+                .build()
+        scheduler.schedule(jobInfo)
+
         // Initialize the switch state and Handle enable/disable switch change
-        mIsEnabled = getPreferences(MODE_PRIVATE)
+        mIsEnabled = getSharedPreferences("com.example.android.hushup", MODE_PRIVATE)
                 .getBoolean(getString(R.string.setting_enabled), false)
         val onOffSwitch = findViewById<Switch>(R.id.enable_switch);
 
@@ -74,7 +85,7 @@ class MainActivity : AppCompatActivity(),
 
         onOffSwitch.setOnCheckedChangeListener({
             _, isChecked ->  run {
-                val editor = getPreferences(Context.MODE_PRIVATE).edit()
+                val editor = getSharedPreferences("com.example.android.hushup", Context.MODE_PRIVATE).edit()
                 editor.putBoolean(getString(R.string.setting_enabled), isChecked)
                 mIsEnabled = isChecked
                 editor.commit()
@@ -110,7 +121,7 @@ class MainActivity : AppCompatActivity(),
     }
 
     override fun onConnectionFailed(connectionResult: ConnectionResult) {
-        Log.i(TAG, "Failed!")
+        Log.i(TAG, "failed to connect!")
     }
 
     private fun refreshData() {

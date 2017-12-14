@@ -73,7 +73,6 @@ class GeofenceBroadcastReceiver: BroadcastReceiver() {
         }
     }
     override fun onReceive(context: Context?, intent: Intent?) {
-        Log.i("onRecive", "asdf")
         // Catch intent from transition (Pending result)
         val geofencingEvent = GeofencingEvent.fromIntent(intent) as GeofencingEvent
         if (geofencingEvent.hasError()) {
