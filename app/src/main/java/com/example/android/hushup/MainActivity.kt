@@ -1,7 +1,6 @@
 package com.example.android.hushup
 
 import android.app.Activity
-import android.app.NotificationManager
 import android.content.*
 import android.content.pm.PackageManager
 import android.media.AudioManager
@@ -24,9 +23,8 @@ import com.google.android.gms.common.api.PendingResult
 import com.google.android.gms.location.places.PlaceBuffer
 import com.google.android.gms.location.places.ui.PlacePicker
 import android.support.v7.widget.helper.ItemTouchHelper
-
-
-
+import android.view.Menu
+import android.view.MenuItem
 
 class MainActivity : AppCompatActivity(),
         GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
@@ -171,40 +169,24 @@ class MainActivity : AppCompatActivity(),
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-
-        // Initialize location permissions checkbox
-        val locationPermissions = findViewById<CheckBox>(R.id.location_permission_checkbox)
-        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-            locationPermissions.isChecked = false
-        } else {
-            locationPermissions.isChecked = true
-            locationPermissions.isEnabled = false
-        }
-
-        // Initialize ringer permissions checkbox
-        val ringerPermissions = findViewById<CheckBox>(R.id.ringer_permission_checkbox)
-        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        // Check for API supports such permissions and is granted
-        if (android.os.Build.VERSION.SDK_INT >= 24
-                && !notificationManager.isNotificationPolicyAccessGranted) {
-            ringerPermissions.isChecked = false
-        } else {
-            ringerPermissions.isChecked = true
-            ringerPermissions.isEnabled = false
-        }
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.main_menu, menu)
+        return super.onCreateOptionsMenu(menu)
     }
 
-    fun locationPermissionClicked(view: View) {
-        ActivityCompat.requestPermissions(this,
-                arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION),
-                PERMISSION_REQUEST_FINE_LOCATION)
-    }
-
-    fun ringerPermissionClicked(view: View) {
-        val intent = Intent(android.provider.Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS)
-        startActivity(intent)
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+        super.onOptionsItemSelected(item)
+        val match = item?.itemId
+        when (match) {
+            R.id.settings -> {
+                val intent = Intent(this, SettingsActivity::class.java)
+                startActivity(intent)
+                return true
+            }
+            R.id.help -> {
+                return false
+            }
+            else -> return false
+        }
     }
 }
