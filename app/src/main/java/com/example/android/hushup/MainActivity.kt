@@ -192,12 +192,9 @@ class MainActivity : AppCompatActivity(),
             R.id.settings -> {
                 val intent = Intent(this, SettingsActivity::class.java)
                 startActivity(intent)
-                return true
-            }
-            R.id.help -> {
-                return false
             }
             else -> return false
         }
+        return true
     }
 }

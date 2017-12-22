@@ -13,5 +13,9 @@
     <string name="silent_mode_activated">Silent mode activated</string>
     <string name="touch_to_relaunch">Touch to launch the app.</string>
     <string name="back_to_normal">Back to normal</string>
+    <string name="intro">Hush Up uses Geofences from GoogleApi to detect whether you enter your zone and your phone will be turned into silent mode</string>
+    <string name="privacy_guarantee"> You DO NOT have to worry about your privacy since the Geofences are handled by Google</string>
+    <string name="privacy_label">Privacy</string>
+    <string name="swipe_to_delete">You can swipe to delete unwanted locations</string>
     <string name="help">Help</string>
 </resources>

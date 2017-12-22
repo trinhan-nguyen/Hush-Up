@@ -4,9 +4,7 @@ import android.app.job.JobParameters
 import android.app.job.JobService
 import android.content.Context
 import android.net.ConnectivityManager
-import android.content.SharedPreferences;
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import com.example.android.hushup.provider.PlaceContract
 import com.google.android.gms.common.ConnectionResult
