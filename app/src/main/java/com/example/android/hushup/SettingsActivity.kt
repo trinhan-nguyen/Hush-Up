@@ -23,7 +23,7 @@ class SettingsActivity: AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-
+        setContentView(R.layout.settings)
         // Initialize location permissions checkbox
         val locationPermissions = findViewById<CheckBox>(R.id.location_permission_checkbox)
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
