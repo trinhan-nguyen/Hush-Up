@@ -88,7 +88,7 @@ class MainActivity : AppCompatActivity(),
                 val editor = getSharedPreferences("com.example.android.hushup", Context.MODE_PRIVATE).edit()
                 editor.putBoolean(getString(R.string.setting_enabled), isChecked)
                 mIsEnabled = isChecked
-                editor.commit()
+                editor.apply()
                 if (isChecked) mGeofencing.registerAllGeofences()
                 else {
                     mGeofencing.unRegisterAllGeofences()
