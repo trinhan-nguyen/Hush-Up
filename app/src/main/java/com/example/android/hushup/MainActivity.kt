@@ -83,7 +83,7 @@ class MainActivity : AppCompatActivity(),
 
         onOffSwitch.isChecked = mIsEnabled;
 
-        onOffSwitch.setOnCheckedChangeListener({
+        onOffSwitch.setOnCheckedChangeListener{
             _, isChecked ->  run {
                 val editor = getSharedPreferences("com.example.android.hushup", Context.MODE_PRIVATE).edit()
                 editor.putBoolean(getString(R.string.setting_enabled), isChecked)
@@ -97,7 +97,7 @@ class MainActivity : AppCompatActivity(),
                     GeofenceBroadcastReceiver.setRingerMode(this, AudioManager.RINGER_MODE_NORMAL)
                 }
             }
-        })
+        }
 
         // Build Api Client
         mClient = GoogleApiClient.Builder(this)
